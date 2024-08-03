@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
@@ -11,44 +11,21 @@ import Image from 'next/image';
 const DishcoveryForm: React.FC = () => {
     const [photoPreview, setPhotoPreview] = useState<string | null>(null);
     const [isVeg, setIsVeg] = useState<boolean>(true);
-    const [isCameraReady, setIsCameraReady] = useState<boolean>(false);
-    const cameraRef = useRef<HTMLVideoElement>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
-    useEffect(() => {
-        let stream: MediaStream | null = null;
-
-        const setupCamera = async () => {
-            try {
-                stream = await navigator.mediaDevices.getUserMedia({ video: true });
-                if (cameraRef.current) {
-                    cameraRef.current.srcObject = stream;
-                    setIsCameraReady(true);
-                }
-            } catch (err) {
-                console.error("Error accessing the camera:", err);
-            }
-        };
-
-        setupCamera();
-
-        return () => {
-            if (stream) {
-                stream.getTracks().forEach(track => track.stop());
-            }
-        };
-    }, []);
-
-    const handleCapture = () => {
-        if (cameraRef.current) {
-            const canvas = document.createElement('canvas');
-            canvas.width = cameraRef.current.videoWidth;
-            canvas.height = cameraRef.current.videoHeight;
-            const ctx = canvas.getContext('2d');
-            if (ctx) {
-                ctx.drawImage(cameraRef.current, 0, 0);
-                setPhotoPreview(canvas.toDataURL('image/jpeg'));
-            }
+    const handleCapture = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setPhotoPreview(reader.result as string);
+            };
+            reader.readAsDataURL(file);
         }
+    };
+
+    const triggerFileInput = () => {
+        fileInputRef.current?.click();
     };
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -71,24 +48,23 @@ const DishcoveryForm: React.FC = () => {
                             {photoPreview ? (
                                 <Image src={photoPreview} alt="Vegetable preview" layout="fill" objectFit="cover" />
                             ) : (
-                                <>
-                                    <video
-                                        ref={cameraRef}
-                                        className="w-full h-full object-cover"
-                                        autoPlay
-                                        playsInline
-                                    />
-                                    {isCameraReady && (
-                                        <Button
-                                            type="button"
-                                            className="absolute bottom-2 left-1/2 transform -translate-x-1/2"
-                                            onClick={handleCapture}
-                                        >
-                                            <Camera className="mr-2 h-4 w-4" /> Capture
-                                        </Button>
-                                    )}
-                                </>
+                                <Button
+                                    type="button"
+                                    onClick={triggerFileInput}
+                                    className="absolute"
+                                >
+                                    <Camera className="mr-2 h-4 w-4" /> Capture
+                                </Button>
                             )}
+                            <input
+                                ref={fileInputRef}
+                                type="file"
+                                id="photo"
+                                accept="image/*"
+                                capture="environment"
+                                onChange={handleCapture}
+                                className="hidden"
+                            />
                         </div>
                     </div>
 
