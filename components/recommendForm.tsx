@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { Input } from "@/components/ui/input";
 import { Camera } from "lucide-react";
 import Image from 'next/image';
 import { useFormState } from 'react-dom';
@@ -14,9 +15,11 @@ import { submitDishcoveryForm } from '@/app/actions/submitDishcoveryForm';
 const DishcoveryForm: React.FC = () => {
     const [photoPreview, setPhotoPreview] = useState<string | null>(null);
     const [isVeg, setIsVeg] = useState<boolean>(true);
+    const [servings, setServings] = useState<number>(1);
     const [mealType, setMealType] = useState<string>('');
     const [cuisineType, setCuisineType] = useState<string>('');
     const [dietaryRestrictions, setDietaryRestrictions] = useState<string>('none');
+    const [photoError, setPhotoError] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const initialState = { message: '', error: undefined };
     const [state, formAction] = useFormState(submitDishcoveryForm, initialState);
@@ -35,16 +38,25 @@ const DishcoveryForm: React.FC = () => {
                 const reader = new FileReader();
                 reader.onloadend = () => {
                     setPhotoPreview(reader.result as string);
+                    setPhotoError(null);
                 };
                 reader.readAsDataURL(compressedFile);
             } catch (error) {
                 console.error('Error compressing image:', error);
+                setPhotoError('Error processing image. Please try again.');
             }
         }
     };
 
     const triggerFileInput = () => {
         fileInputRef.current?.click();
+    };
+
+    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+        if (!photoPreview) {
+            event.preventDefault();
+            setPhotoError('Please capture a photo before submitting.');
+        }
     };
 
     return (
@@ -54,9 +66,9 @@ const DishcoveryForm: React.FC = () => {
                 <CardDescription>Analyze your vegetables and get recipe suggestions</CardDescription>
             </CardHeader>
             <CardContent>
-                <form action={formAction} className="space-y-4">
+                <form action={formAction} onSubmit={handleSubmit} className="space-y-4">
                     <div className="space-y-2">
-                        <Label htmlFor="photo">Capture Vegetable Photo</Label>
+                        <Label htmlFor="photo">Capture Vegetable Photo (required)</Label>
                         <div className="relative w-full h-48 sm:h-64 md:h-80 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center overflow-hidden">
                             {photoPreview ? (
                                 <Image src={photoPreview} alt="Vegetable preview" layout="fill" objectFit="cover" />
@@ -77,20 +89,36 @@ const DishcoveryForm: React.FC = () => {
                                 accept="image/*"
                                 capture="environment"
                                 onChange={handleCapture}
-                                className="hidden"
-                                required
+                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                            // aria-label="Capture Vegetable Photo"
                             />
                         </div>
+                        {photoError && <p className="text-red-500 text-sm mt-1">{photoError}</p>}
                     </div>
 
-                    <div className="flex items-center space-x-2">
-                        <Switch
-                            id="veg-switch"
-                            name="isVegetarian"
-                            checked={isVeg}
-                            onCheckedChange={setIsVeg}
-                        />
-                        <Label htmlFor="veg-switch">{isVeg ? 'Vegetarian' : 'Non-Vegetarian'}</Label>
+                    <div className="flex items-center space-x-4">
+                        <div className="flex items-center space-x-2">
+                            <Switch
+                                id="veg-switch"
+                                name="isVegetarian"
+                                checked={isVeg}
+                                onCheckedChange={setIsVeg}
+                            />
+                            <Label htmlFor="veg-switch">{isVeg ? 'Vegetarian' : 'Non-Vegetarian'}</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <Label htmlFor="servings">Servings:</Label>
+                            <Input
+                                type="number"
+                                id="servings"
+                                name="servings"
+                                value={servings}
+                                onChange={(e) => setServings(Number(e.target.value))}
+                                min="1"
+                                max="10"
+                                className="w-16"
+                            />
+                        </div>
                     </div>
 
                     <div className="space-y-2">
