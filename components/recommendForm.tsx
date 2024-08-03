@@ -1,5 +1,6 @@
 'use client'
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, FormEvent } from 'react';
+import imageCompression from 'browser-image-compression';
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
@@ -11,16 +12,31 @@ import Image from 'next/image';
 const DishcoveryForm: React.FC = () => {
     const [photoPreview, setPhotoPreview] = useState<string | null>(null);
     const [isVeg, setIsVeg] = useState<boolean>(true);
+    const [mealType, setMealType] = useState<string>('');
+    const [cuisineType, setCuisineType] = useState<string>('');
+    const [dietaryRestrictions, setDietaryRestrictions] = useState<string>('none');
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const formRef = useRef<HTMLFormElement>(null);
 
-    const handleCapture = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleCapture = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setPhotoPreview(reader.result as string);
-            };
-            reader.readAsDataURL(file);
+            try {
+                const options = {
+                    maxSizeMB: 0.1,
+                    maxWidthOrHeight: 1200,
+                    useWebWorker: true,
+                    quality: 0.6
+                };
+                const compressedFile = await imageCompression(file, options);
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    setPhotoPreview(reader.result as string);
+                };
+                reader.readAsDataURL(compressedFile);
+            } catch (error) {
+                console.error('Error compressing image:', error);
+            }
         }
     };
 
@@ -28,10 +44,20 @@ const DishcoveryForm: React.FC = () => {
         fileInputRef.current?.click();
     };
 
-    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        console.log('Form submitted');
-        // Form submission logic would go here
+        const formData = {
+            image: photoPreview ? photoPreview.split(',')[1] : null,
+            isVegetarian: isVeg,
+            mealType,
+            cuisineType,
+            dietaryRestrictions
+        };
+        console.log('Form Data:', formData);
+    };
+
+    const handleGetRecipes = () => {
+        formRef.current?.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
     };
 
     return (
@@ -41,7 +67,7 @@ const DishcoveryForm: React.FC = () => {
                 <CardDescription>Analyze your vegetables and get recipe suggestions</CardDescription>
             </CardHeader>
             <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
                     <div className="space-y-2">
                         <Label htmlFor="photo">Capture Vegetable Photo</Label>
                         <div className="relative w-full h-48 sm:h-64 md:h-80 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center overflow-hidden">
@@ -64,6 +90,7 @@ const DishcoveryForm: React.FC = () => {
                                 capture="environment"
                                 onChange={handleCapture}
                                 className="hidden"
+                                required
                             />
                         </div>
                     </div>
@@ -79,7 +106,7 @@ const DishcoveryForm: React.FC = () => {
 
                     <div className="space-y-2">
                         <Label htmlFor="meal-type">Meal Type</Label>
-                        <Select>
+                        <Select required onValueChange={(value) => setMealType(value)}>
                             <SelectTrigger id="meal-type">
                                 <SelectValue placeholder="Select meal type" />
                             </SelectTrigger>
@@ -94,7 +121,7 @@ const DishcoveryForm: React.FC = () => {
 
                     <div className="space-y-2">
                         <Label htmlFor="cuisine-type">Cuisine Preference</Label>
-                        <Select>
+                        <Select required onValueChange={(value) => setCuisineType(value)}>
                             <SelectTrigger id="cuisine-type">
                                 <SelectValue placeholder="Select cuisine type" />
                             </SelectTrigger>
@@ -110,7 +137,7 @@ const DishcoveryForm: React.FC = () => {
 
                     <div className="space-y-2">
                         <Label htmlFor="dietary-restrictions">Dietary Restrictions</Label>
-                        <Select>
+                        <Select required value={dietaryRestrictions} onValueChange={(value) => setDietaryRestrictions(value)}>
                             <SelectTrigger id="dietary-restrictions">
                                 <SelectValue placeholder="Select dietary restrictions" />
                             </SelectTrigger>
@@ -126,8 +153,8 @@ const DishcoveryForm: React.FC = () => {
                 </form>
             </CardContent>
             <CardFooter className="flex justify-between">
-                <Button variant="outline">Cancel</Button>
-                <Button type="submit">Get Recipes</Button>
+                <Button variant="outline" onClick={() => window.location.reload()}>Cancel</Button>
+                <Button onClick={handleGetRecipes}>Get Recipes</Button>
             </CardFooter>
         </Card>
     );
