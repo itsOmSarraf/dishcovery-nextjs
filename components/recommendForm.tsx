@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, useRef, FormEvent } from 'react';
+import React, { useState, useRef } from 'react';
 import imageCompression from 'browser-image-compression';
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -8,6 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Camera } from "lucide-react";
 import Image from 'next/image';
+import { useFormState } from 'react-dom';
+import { submitDishcoveryForm } from '@/app/actions/submitDishcoveryForm';
 
 const DishcoveryForm: React.FC = () => {
     const [photoPreview, setPhotoPreview] = useState<string | null>(null);
@@ -16,7 +18,8 @@ const DishcoveryForm: React.FC = () => {
     const [cuisineType, setCuisineType] = useState<string>('');
     const [dietaryRestrictions, setDietaryRestrictions] = useState<string>('none');
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const formRef = useRef<HTMLFormElement>(null);
+    const initialState = { message: '', error: undefined };
+    const [state, formAction] = useFormState(submitDishcoveryForm, initialState);
 
     const handleCapture = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
@@ -44,22 +47,6 @@ const DishcoveryForm: React.FC = () => {
         fileInputRef.current?.click();
     };
 
-    const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        const formData = {
-            image: photoPreview ? photoPreview.split(',')[1] : null,
-            isVegetarian: isVeg,
-            mealType,
-            cuisineType,
-            dietaryRestrictions
-        };
-        console.log('Form Data:', formData);
-    };
-
-    const handleGetRecipes = () => {
-        formRef.current?.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
-    };
-
     return (
         <Card className="w-full max-w-md mx-auto bg-white">
             <CardHeader>
@@ -67,7 +54,7 @@ const DishcoveryForm: React.FC = () => {
                 <CardDescription>Analyze your vegetables and get recipe suggestions</CardDescription>
             </CardHeader>
             <CardContent>
-                <form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
+                <form action={formAction} className="space-y-4">
                     <div className="space-y-2">
                         <Label htmlFor="photo">Capture Vegetable Photo</Label>
                         <div className="relative w-full h-48 sm:h-64 md:h-80 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center overflow-hidden">
@@ -86,6 +73,7 @@ const DishcoveryForm: React.FC = () => {
                                 ref={fileInputRef}
                                 type="file"
                                 id="photo"
+                                name="photo"
                                 accept="image/*"
                                 capture="environment"
                                 onChange={handleCapture}
@@ -98,6 +86,7 @@ const DishcoveryForm: React.FC = () => {
                     <div className="flex items-center space-x-2">
                         <Switch
                             id="veg-switch"
+                            name="isVegetarian"
                             checked={isVeg}
                             onCheckedChange={setIsVeg}
                         />
@@ -106,7 +95,7 @@ const DishcoveryForm: React.FC = () => {
 
                     <div className="space-y-2">
                         <Label htmlFor="meal-type">Meal Type</Label>
-                        <Select required onValueChange={(value) => setMealType(value)}>
+                        <Select name="mealType" required onValueChange={(value) => setMealType(value)}>
                             <SelectTrigger id="meal-type">
                                 <SelectValue placeholder="Select meal type" />
                             </SelectTrigger>
@@ -121,7 +110,7 @@ const DishcoveryForm: React.FC = () => {
 
                     <div className="space-y-2">
                         <Label htmlFor="cuisine-type">Cuisine Preference</Label>
-                        <Select required onValueChange={(value) => setCuisineType(value)}>
+                        <Select name="cuisineType" required onValueChange={(value) => setCuisineType(value)}>
                             <SelectTrigger id="cuisine-type">
                                 <SelectValue placeholder="Select cuisine type" />
                             </SelectTrigger>
@@ -137,7 +126,7 @@ const DishcoveryForm: React.FC = () => {
 
                     <div className="space-y-2">
                         <Label htmlFor="dietary-restrictions">Dietary Restrictions</Label>
-                        <Select required value={dietaryRestrictions} onValueChange={(value) => setDietaryRestrictions(value)}>
+                        <Select name="dietaryRestrictions" required value={dietaryRestrictions} onValueChange={(value) => setDietaryRestrictions(value)}>
                             <SelectTrigger id="dietary-restrictions">
                                 <SelectValue placeholder="Select dietary restrictions" />
                             </SelectTrigger>
@@ -150,12 +139,18 @@ const DishcoveryForm: React.FC = () => {
                             </SelectContent>
                         </Select>
                     </div>
+
+                    {state.message && <p className="text-green-600">{state.message}</p>}
+                    {state.error && <p className="text-red-600">{state.error}</p>}
+
+                    <input type="hidden" name="photoPreview" value={photoPreview || ''} />
+
+                    <CardFooter className="flex justify-between px-0">
+                        <Button type="button" variant="outline" onClick={() => window.location.reload()}>Cancel</Button>
+                        <Button type="submit">Get Recipes</Button>
+                    </CardFooter>
                 </form>
             </CardContent>
-            <CardFooter className="flex justify-between">
-                <Button variant="outline" onClick={() => window.location.reload()}>Cancel</Button>
-                <Button onClick={handleGetRecipes}>Get Recipes</Button>
-            </CardFooter>
         </Card>
     );
 };

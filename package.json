@@ -12,6 +12,7 @@
     "@clerk/elements": "^0.12.1",
     "@clerk/nextjs": "^5.2.12",
     "@ducanh2912/next-pwa": "^10.2.8",
+    "@google/generative-ai": "^0.16.0",
     "@radix-ui/react-label": "^2.1.0",
     "@radix-ui/react-select": "^2.1.1",
     "@radix-ui/react-slot": "^1.1.0",
