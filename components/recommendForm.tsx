@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
@@ -8,24 +8,53 @@ import { Switch } from "@/components/ui/switch";
 import { Camera } from "lucide-react";
 import Image from 'next/image';
 
-const DishcoveryForm = () => {
+const DishcoveryForm: React.FC = () => {
     const [photoPreview, setPhotoPreview] = useState<string | null>(null);
-    const [isVeg, setIsVeg] = useState(true);
+    const [isVeg, setIsVeg] = useState<boolean>(true);
+    const [isCameraReady, setIsCameraReady] = useState<boolean>(false);
     const cameraRef = useRef<HTMLVideoElement>(null);
+
+    useEffect(() => {
+        let stream: MediaStream | null = null;
+
+        const setupCamera = async () => {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                if (cameraRef.current) {
+                    cameraRef.current.srcObject = stream;
+                    setIsCameraReady(true);
+                }
+            } catch (err) {
+                console.error("Error accessing the camera:", err);
+            }
+        };
+
+        setupCamera();
+
+        return () => {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+        };
+    }, []);
 
     const handleCapture = () => {
         if (cameraRef.current) {
             const canvas = document.createElement('canvas');
             canvas.width = cameraRef.current.videoWidth;
             canvas.height = cameraRef.current.videoHeight;
-            canvas.getContext('2d')?.drawImage(cameraRef.current, 0, 0);
-            setPhotoPreview(canvas.toDataURL('image/jpeg'));
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+                ctx.drawImage(cameraRef.current, 0, 0);
+                setPhotoPreview(canvas.toDataURL('image/jpeg'));
+            }
         }
     };
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         console.log('Form submitted');
+        // Form submission logic would go here
     };
 
     return (
@@ -40,17 +69,24 @@ const DishcoveryForm = () => {
                         <Label htmlFor="photo">Capture Vegetable Photo</Label>
                         <div className="relative w-full h-48 sm:h-64 md:h-80 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center overflow-hidden">
                             {photoPreview ? (
-                                <Image src={photoPreview} alt="Vegetable preview" className="w-full h-full object-cover" />
+                                <Image src={photoPreview} alt="Vegetable preview" layout="fill" objectFit="cover" />
                             ) : (
                                 <>
-                                    <video ref={cameraRef} className="w-full h-full object-cover" autoPlay playsInline />
-                                    <Button
-                                        type="button"
-                                        className="absolute bottom-2 left-1/2 transform -translate-x-1/2"
-                                        onClick={handleCapture}
-                                    >
-                                        <Camera className="mr-2 h-4 w-4" /> Capture
-                                    </Button>
+                                    <video
+                                        ref={cameraRef}
+                                        className="w-full h-full object-cover"
+                                        autoPlay
+                                        playsInline
+                                    />
+                                    {isCameraReady && (
+                                        <Button
+                                            type="button"
+                                            className="absolute bottom-2 left-1/2 transform -translate-x-1/2"
+                                            onClick={handleCapture}
+                                        >
+                                            <Camera className="mr-2 h-4 w-4" /> Capture
+                                        </Button>
+                                    )}
                                 </>
                             )}
                         </div>
