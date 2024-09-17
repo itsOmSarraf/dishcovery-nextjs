@@ -8,9 +8,9 @@ async function run(
 	typeFood: string,
 	timeFood: string,
 	servings: number,
-	imageData: Buffer
+	photoPreview: Buffer
 ) {
-	const model = genAI.getGenerativeModel({ model: 'gemini-pro-vision' });
+	const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
 	const prompt = `suggest me a ${
 		nonVeg ? 'nonveg' : 'veg'
@@ -19,7 +19,7 @@ async function run(
 	`;
 	try {
 		const generativePart = await fileToGenerativePart(
-			imageData.toString('base64'),
+			photoPreview.toString('base64'),
 			'image/jpeg'
 		);
 		const result = await model.generateContent([prompt, generativePart]);

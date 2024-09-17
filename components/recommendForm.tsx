@@ -16,12 +16,12 @@ const DishcoveryForm: React.FC = () => {
     const [photoPreview, setPhotoPreview] = useState<string | null>(null);
     const [isVeg, setIsVeg] = useState<boolean>(true);
     const [servings, setServings] = useState<number>(1);
-    const [mealType, setMealType] = useState<string>('');
-    const [cuisineType, setCuisineType] = useState<string>('');
+    const [mealTime, setMealTime] = useState<string>('Snacks');
+    const [cuisineType, setCuisineType] = useState<string>('Indian');
     const [dietaryRestrictions, setDietaryRestrictions] = useState<string>('none');
     const [photoError, setPhotoError] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const initialState = { message: '', error: undefined };
+    const initialState = { error: '' };
     const [state, formAction] = useFormState(submitDishcoveryForm, initialState);
 
     const handleCapture = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -67,6 +67,7 @@ const DishcoveryForm: React.FC = () => {
             </CardHeader>
             <CardContent>
                 <form action={formAction} onSubmit={handleSubmit} className="space-y-4">
+                    {/* Photo capture section */}
                     <div className="space-y-2">
                         <Label htmlFor="photo">Capture Vegetable Photo (required)</Label>
                         <div className="relative w-full h-48 sm:h-64 md:h-80 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center overflow-hidden">
@@ -90,12 +91,12 @@ const DishcoveryForm: React.FC = () => {
                                 capture="environment"
                                 onChange={handleCapture}
                                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                            // aria-label="Capture Vegetable Photo"
                             />
                         </div>
                         {photoError && <p className="text-red-500 text-sm mt-1">{photoError}</p>}
                     </div>
 
+                    {/* Vegetarian switch and servings input */}
                     <div className="flex items-center space-x-4">
                         <div className="flex items-center space-x-2">
                             <Switch
@@ -121,10 +122,11 @@ const DishcoveryForm: React.FC = () => {
                         </div>
                     </div>
 
+                    {/* Meal Type select */}
                     <div className="space-y-2">
-                        <Label htmlFor="meal-type">Meal Type</Label>
-                        <Select name="mealType" required onValueChange={(value) => setMealType(value)}>
-                            <SelectTrigger id="meal-type">
+                        <Label htmlFor="meal-time">Meal Type</Label>
+                        <Select name="mealTime" value={mealTime} required onValueChange={(value) => setMealTime(value)}>
+                            <SelectTrigger id="meal-time">
                                 <SelectValue placeholder="Select meal type" />
                             </SelectTrigger>
                             <SelectContent>
@@ -136,9 +138,10 @@ const DishcoveryForm: React.FC = () => {
                         </Select>
                     </div>
 
+                    {/* Cuisine Preference select */}
                     <div className="space-y-2">
                         <Label htmlFor="cuisine-type">Cuisine Preference</Label>
-                        <Select name="cuisineType" required onValueChange={(value) => setCuisineType(value)}>
+                        <Select name="cuisineType" value={cuisineType} required onValueChange={(value) => setCuisineType(value)}>
                             <SelectTrigger id="cuisine-type">
                                 <SelectValue placeholder="Select cuisine type" />
                             </SelectTrigger>
@@ -152,6 +155,7 @@ const DishcoveryForm: React.FC = () => {
                         </Select>
                     </div>
 
+                    {/* Dietary Restrictions select */}
                     <div className="space-y-2">
                         <Label htmlFor="dietary-restrictions">Dietary Restrictions</Label>
                         <Select name="dietaryRestrictions" required value={dietaryRestrictions} onValueChange={(value) => setDietaryRestrictions(value)}>
@@ -168,7 +172,6 @@ const DishcoveryForm: React.FC = () => {
                         </Select>
                     </div>
 
-                    {state.message && <p className="text-green-600">{state.message}</p>}
                     {state.error && <p className="text-red-600">{state.error}</p>}
 
                     <input type="hidden" name="photoPreview" value={photoPreview || ''} />
