@@ -28,4 +28,3 @@ export async function Gemini(b64, mimeType) {
 		throw error;
 	}
 }
-wh;
