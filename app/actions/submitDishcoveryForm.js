@@ -5,7 +5,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-export async function submitDishcoveryForm(prevState, formData) {
+export async function submitDishcoveryForm(formData) {
 	try {
 		// Process form data
 		const {
