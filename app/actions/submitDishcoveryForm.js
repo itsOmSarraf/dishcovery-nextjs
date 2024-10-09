@@ -5,57 +5,53 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-export async function submitDishcoveryForm(formData) {
+export async function submitDishcoveryForm(prevState, formData) {
 	try {
-		// Process form data
-		const {
-			photo,
-			isVegetarian,
-			mealTime,
-			cuisineType,
-			dietaryRestrictions,
-			servings
-		} = Object.fromEntries(formData);
+		// Extract form data
+		const photoPreview = formData.get('photoPreview');
+		const isVegetarian = formData.get('isVegetarian') === 'on';
+		const servings = formData.get('servings');
+		const mealTime = formData.get('mealTime');
+		const cuisineType = formData.get('cuisineType');
+		const dietaryRestrictions = formData.get('dietaryRestrictions');
 
-		// Handle the image file
-		const imageFile = photo;
-		if (!imageFile) {
+		// Validate required fields
+		if (!photoPreview) {
 			throw new Error('No image provided');
 		}
 
-		// Convert image to base64
-		const imageArrayBuffer = await imageFile.arrayBuffer();
-		const imageBase64 = Buffer.from(imageArrayBuffer).toString('base64');
+		// The photoPreview is already a base64 string, so we can use it directly
+		const imageBase64 = photoPreview.split(',')[1]; // Remove the data:image/jpeg;base64, part
 
 		// Prepare the prompt for Gemini
 		const prompt = `
-      Analyze this image of a dish and provide a recipe based on the following criteria:
-      - Dietary restrictions: ${dietaryRestrictions}
-      - Vegetarian: ${isVegetarian}
-      - Cuisine type: ${cuisineType}
-      - Meal time: ${mealTime}
-      - Number of servings: ${servings}
+            Analyze this image of a dish and provide a recipe based on the following criteria:
+            - Dietary restrictions: ${dietaryRestrictions}
+            - Vegetarian: ${isVegetarian}
+            - Cuisine type: ${cuisineType}
+            - Meal time: ${mealTime}
+            - Number of servings: ${servings}
 
-      Please provide the recipe in JSON format with the following structure:
-      {
-        "dishName": "Name of the dish",
-        "ingredients": ["list", "of", "ingredients"],
-        "instructions": ["step 1", "step 2", "..."],
-        "nutritionalInfo": {
-          "calories": 000,
-          "protein": "00g",
-          "carbs": "00g",
-          "fat": "00g"
-        }
-      }
-    `;
+            Please provide the recipe in JSON format with the following structure:
+            {
+                "dishName": "Name of the dish",
+                "ingredients": ["list", "of", "ingredients"],
+                "instructions": ["step 1", "step 2", "..."],
+                "nutritionalInfo": {
+                    "calories": 000,
+                    "protein": "00g",
+                    "carbs": "00g",
+                    "fat": "00g"
+                }
+            }
+        `;
 
 		// Call Gemini API
 		const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 		const result = await model.generateContent([
 			{
 				inlineData: {
-					mimeType: imageFile.type,
+					mimeType: 'image/jpeg', // Assuming JPEG, adjust if needed
 					data: imageBase64
 				}
 			},
@@ -79,6 +75,8 @@ export async function submitDishcoveryForm(formData) {
 		return { message: 'Recipe generated successfully!', recipe };
 	} catch (error) {
 		console.error('Error in submitDishcoveryForm:', error);
-		return { error: 'Failed to generate recipe. Please try again.' };
+		return {
+			error: error.message || 'Failed to generate recipe. Please try again.'
+		};
 	}
 }
