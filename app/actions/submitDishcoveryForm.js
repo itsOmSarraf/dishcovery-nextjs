@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { cookies } from 'next/headers';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
@@ -25,26 +26,26 @@ export async function submitDishcoveryForm(prevState, formData) {
 
 		// Prepare the prompt for Gemini
 		const prompt = `
-            Analyze this image of a dish and provide a recipe based on the following criteria:
-            - Dietary restrictions: ${dietaryRestrictions}
-            - Vegetarian: ${isVegetarian}
-            - Cuisine type: ${cuisineType}
-            - Meal time: ${mealTime}
-            - Number of servings: ${servings}
+      Analyze this image of a dish and provide a recipe based on the following criteria:
+      - Dietary restrictions: ${dietaryRestrictions}
+      - Vegetarian: ${isVegetarian}
+      - Cuisine type: ${cuisineType}
+      - Meal time: ${mealTime}
+      - Number of servings: ${servings}
 
-            Please provide the recipe in JSON format with the following structure:
-            {
-                "dishName": "Name of the dish",
-                "ingredients": ["list", "of", "ingredients"],
-                "instructions": ["step 1", "step 2", "..."],
-                "nutritionalInfo": {
-                    "calories": 000,
-                    "protein": "00g",
-                    "carbs": "00g",
-                    "fat": "00g"
-                }
-            }
-        `;
+      Please provide the recipe in JSON format with the following structure:
+      {
+          "dishName": "Name of the dish",
+          "ingredients": ["list", "of", "ingredients"],
+          "instructions": ["step 1", "step 2", "..."],
+          "nutritionalInfo": {
+              "calories": 000,
+              "protein": "00g",
+              "carbs": "00g",
+              "fat": "00g"
+          }
+      }
+    `;
 
 		// Call Gemini API
 		const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
@@ -71,12 +72,17 @@ export async function submitDishcoveryForm(prevState, formData) {
 		}
 
 		console.log('Generated recipe:', recipe);
+
+		// Store the recipe in a server-side cookie
+		cookies().set('generatedRecipe', JSON.stringify(recipe), { maxAge: 3600 }); // Cookie expires in 1 hour
+
 		revalidatePath('/');
-		return { message: 'Recipe generated successfully!', recipe };
+		return { message: 'Recipe generated successfully!', success: true };
 	} catch (error) {
 		console.error('Error in submitDishcoveryForm:', error);
 		return {
-			error: error.message || 'Failed to generate recipe. Please try again.'
+			error: error.message || 'Failed to generate recipe. Please try again.',
+			success: false
 		};
 	}
 }

@@ -11,6 +11,7 @@ import { Camera } from "lucide-react";
 import Image from 'next/image';
 import { useFormState } from 'react-dom';
 import { submitDishcoveryForm } from '@/app/actions/submitDishcoveryForm';
+import { useRouter } from 'next/navigation';
 
 const DishcoveryForm: React.FC = () => {
     const [photoPreview, setPhotoPreview] = useState<string | null>(null);
@@ -21,8 +22,15 @@ const DishcoveryForm: React.FC = () => {
     const [dietaryRestrictions, setDietaryRestrictions] = useState<string>('none');
     const [photoError, setPhotoError] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const initialState = { error: '' };
+    const initialState = { error: '', success: false };
     const [state, formAction] = useFormState(submitDishcoveryForm, initialState);
+    const router = useRouter();
+
+    React.useEffect(() => {
+        if (state.success) {
+            router.push('/recipe');
+        }
+    }, [state.success, router]);
 
     const handleCapture = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
