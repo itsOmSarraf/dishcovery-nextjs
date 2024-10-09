@@ -1,13 +1,13 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
-
-// Log the API key (only for debugging, remove in production)
-console.log('API Key:', process.env.GOOGLE_API_KEY);
+import { NextResponse } from 'next/server';
 
 // Initialize the API with a fallback for easier debugging
 const API_KEY = process.env.GOOGLE_API_KEY || 'YOUR_API_KEY_HERE';
 const genAI = new GoogleGenerativeAI(API_KEY);
 
-export async function Gemini(b64, mimeType) {
+export async function POST(request: Request) {
+	const { b64, mimeType } = await request.json();
+
 	const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
 	const imagePart = {
@@ -21,10 +21,11 @@ export async function Gemini(b64, mimeType) {
 
 	try {
 		const result = await model.generateContent([imagePart, prompt]);
-		console.log(result.response.text());
-		return result.response.text();
-	} catch (error) {
+		const responseText = result.response.text();
+		console.log(responseText);
+		return NextResponse.json({ result: responseText }, { status: 200 });
+	} catch (error: any) {
 		console.error('Error details:', error.message);
-		throw error;
+		return NextResponse.json({ error: error.message }, { status: 500 });
 	}
 }

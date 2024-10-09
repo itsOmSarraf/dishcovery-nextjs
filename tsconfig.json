@@ -26,7 +26,7 @@
 		"**/*.ts",
 		"**/*.tsx",
 		".next/types/**/*.ts",
-		"app/api/geminiapi/route.js"
+		"app/api/geminiapi/route.ts"
 	],
 	"exclude": ["node_modules"]
 }
