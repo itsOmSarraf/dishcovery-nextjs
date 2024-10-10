@@ -2,7 +2,6 @@
 
 import { revalidatePath } from 'next/cache';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { cookies } from 'next/headers';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
@@ -52,7 +51,7 @@ export async function submitDishcoveryForm(prevState, formData) {
 		const result = await model.generateContent([
 			{
 				inlineData: {
-					mimeType: 'image/jpeg', // Assuming JPEG, adjust if needed
+					mimeType: 'image/jpeg',
 					data: imageBase64
 				}
 			},
@@ -68,21 +67,23 @@ export async function submitDishcoveryForm(prevState, formData) {
 			recipe = JSON.parse(recipeText);
 		} catch (error) {
 			console.error('Failed to parse Gemini response:', error);
-			recipe = { error: 'Failed to generate recipe', rawText: recipeText };
+			return {
+				success: false,
+				error: 'Failed to generate recipe',
+				recipe: null
+			};
 		}
 
 		console.log('Generated recipe:', recipe);
 
-		// Store the recipe in a server-side cookie
-		cookies().set('generatedRecipe', JSON.stringify(recipe), { maxAge: 3600 }); // Cookie expires in 1 hour
-
 		revalidatePath('/');
-		return { message: 'Recipe generated successfully!', success: true };
+		return { success: true, recipe };
 	} catch (error) {
 		console.error('Error in submitDishcoveryForm:', error);
 		return {
+			success: false,
 			error: error.message || 'Failed to generate recipe. Please try again.',
-			success: false
+			recipe: null
 		};
 	}
 }
