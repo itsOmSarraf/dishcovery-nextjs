@@ -55,8 +55,8 @@ const DishcoveryForm = () => {
 		if (file) {
 			try {
 				const options = {
-					maxSizeMB: 0.1,
-					maxWidthOrHeight: 400,
+					maxSizeMB: 0.01,
+					maxWidthOrHeight: 1200,
 					useWebWorker: true,
 					quality: 0.6
 				};
@@ -125,7 +125,6 @@ const DishcoveryForm = () => {
 								id='photo'
 								name='photo'
 								accept='image/*'
-								capture='environment'
 								onChange={handleCapture}
 								className='absolute inset-0 w-full h-full opacity-0 cursor-pointer'
 							/>
