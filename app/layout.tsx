@@ -1,13 +1,13 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import {
-  ClerkProvider,
-  SignInButton,
-  SignedIn,
-  SignedOut,
-  UserButton
-} from '@clerk/nextjs';
+// import {
+//   ClerkProvider,
+//   SignInButton,
+//   SignedIn,
+//   SignedOut,
+//   UserButton
+// } from '@clerk/nextjs';
 import NavBar from "@/components/navbar";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -63,21 +63,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
-      <html lang="en">
-        <body className={`bg-primary ${inter.className}`}>
-          <header>
-            {/* <SignedOut>
+    // <ClerkProvider>
+    <html lang="en">
+      <body className={`bg-primary ${inter.className}`}>
+        <header>
+          {/* <SignedOut>
               <SignInButton />
             </SignedOut>
             <SignedIn>
               <UserButton />
             </SignedIn> */}
-            <NavBar />
-          </header>
-          {children}
-        </body>
-      </html>
-    </ClerkProvider >
+          <NavBar />
+        </header>
+        {children}
+      </body>
+    </html>
+    // {/* </ClerkProvider > */ }
   );
 }

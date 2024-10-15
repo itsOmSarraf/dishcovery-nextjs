@@ -56,7 +56,7 @@ const DishcoveryForm = () => {
 			try {
 				const options = {
 					maxSizeMB: 0.1,
-					maxWidthOrHeight: 1200,
+					maxWidthOrHeight: 400,
 					useWebWorker: true,
 					quality: 0.6
 				};
@@ -103,7 +103,7 @@ const DishcoveryForm = () => {
 					{/* Photo capture section */}
 					<div className='space-y-2'>
 						<Label htmlFor='photo'>Capture Vegetable Photo (required)</Label>
-						<div className='relative w-full h-48 sm:h-64 md:h-80 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center overflow-hidden'>
+						<div className='relative w-64 h-64 mx-auto border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center overflow-hidden'>
 							{photoPreview ? (
 								<Image
 									src={photoPreview}
