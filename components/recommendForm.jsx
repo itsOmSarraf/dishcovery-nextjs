@@ -125,6 +125,7 @@ const DishcoveryForm = () => {
 								id='photo'
 								name='photo'
 								accept='image/*'
+								capture='environment'
 								onChange={handleCapture}
 								className='absolute inset-0 w-full h-full opacity-0 cursor-pointer'
 							/>
