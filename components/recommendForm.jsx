@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useFormState } from 'react-dom';
 import Image from 'next/image';
+import Webcam from 'react-webcam';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import {
@@ -24,7 +25,6 @@ import {
 import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
 import { Camera } from 'lucide-react';
-import imageCompression from 'browser-image-compression';
 import { submitDishcoveryForm } from '@/app/actions/submitDishcoveryForm';
 import useRecipeStore from '@/lib/recipeStore';
 
@@ -38,7 +38,7 @@ const DishcoveryForm = () => {
 	const [mealTime, setMealTime] = useState('snack');
 	const [cuisineType, setCuisineType] = useState('any');
 	const [dietaryRestrictions, setDietaryRestrictions] = useState('none');
-	const fileInputRef = useRef(null);
+	const webcamRef = useRef(null);
 
 	const initialState = { success: false, error: null, recipe: null };
 	const [state, formAction] = useFormState(submitDishcoveryForm, initialState);
@@ -50,33 +50,11 @@ const DishcoveryForm = () => {
 		}
 	}, [state, setRecipe, router]);
 
-	const handleCapture = async (event) => {
-		const file = event.target.files?.[0];
-		if (file) {
-			try {
-				const options = {
-					maxSizeMB: 0.01,
-					maxWidthOrHeight: 1200,
-					useWebWorker: true,
-					quality: 0.6
-				};
-				const compressedFile = await imageCompression(file, options);
-				const reader = new FileReader();
-				reader.onloadend = () => {
-					setPhotoPreview(reader.result);
-					setPhotoError(null);
-				};
-				reader.readAsDataURL(compressedFile);
-			} catch (error) {
-				console.error('Error compressing image:', error);
-				setPhotoError('Error processing image. Please try again.');
-			}
-		}
-	};
-
-	const triggerFileInput = () => {
-		fileInputRef.current?.click();
-	};
+	const capture = useCallback(() => {
+		const imageSrc = webcamRef.current.getScreenshot();
+		setPhotoPreview(imageSrc);
+		setPhotoError(null);
+	}, [webcamRef]);
 
 	const handleSubmit = async (event) => {
 		event.preventDefault();
@@ -85,7 +63,14 @@ const DishcoveryForm = () => {
 			return;
 		}
 		const formData = new FormData(event.currentTarget);
+		formData.set('photoPreview', photoPreview);
 		formAction(formData);
+	};
+
+	const videoConstraints = {
+		width: 640,
+		height: 480,
+		facingMode: 'environment'
 	};
 
 	return (
@@ -100,7 +85,7 @@ const DishcoveryForm = () => {
 				<form
 					onSubmit={handleSubmit}
 					className='space-y-4'>
-					{/* Photo capture section */}
+					{/* Webcam capture section */}
 					<div className='space-y-2'>
 						<Label htmlFor='photo'>Capture Vegetable Photo (required)</Label>
 						<div className='relative w-64 h-64 mx-auto border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center overflow-hidden'>
@@ -112,24 +97,20 @@ const DishcoveryForm = () => {
 									objectFit='cover'
 								/>
 							) : (
-								<Button
-									type='button'
-									onClick={triggerFileInput}
-									className='absolute'>
-									<Camera className='mr-2 h-4 w-4' /> Capture
-								</Button>
+								<Webcam
+									audio={false}
+									ref={webcamRef}
+									screenshotFormat='image/jpeg'
+									videoConstraints={videoConstraints}
+								/>
 							)}
-							<input
-								ref={fileInputRef}
-								type='file'
-								id='photo'
-								name='photo'
-								accept='image/*'
-								capture='environment'
-								onChange={handleCapture}
-								className='absolute inset-0 w-full h-full opacity-0 cursor-pointer'
-							/>
 						</div>
+						<Button
+							type='button'
+							onClick={capture}
+							className='w-full'>
+							<Camera className='mr-2 h-4 w-4' /> Capture Photo
+						</Button>
 						{photoError && (
 							<p className='text-red-500 text-sm mt-1'>{photoError}</p>
 						)}
@@ -224,12 +205,6 @@ const DishcoveryForm = () => {
 
 					{state.error && <p className='text-red-600'>{state.error}</p>}
 					{photoError && <p className='text-red-600'>{photoError}</p>}
-
-					<input
-						type='hidden'
-						name='photoPreview'
-						value={photoPreview || ''}
-					/>
 
 					<CardFooter className='flex justify-between px-0'>
 						<Button
