@@ -4,14 +4,6 @@ const withPWA = withPWAInit({
 	dest: 'public'
 });
 
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-	experimental: {
-		serverActions: {
-			bodySizeLimit: '50mb' // Adjust this value as needed
-		}
-	}
-	// Add any other Next.js config options here
-};
+// /** @type {import('next').NextConfig} */
 
-export default withPWA(nextConfig);
+export default withPWA();
