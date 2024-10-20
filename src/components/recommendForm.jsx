@@ -25,7 +25,7 @@ import {
 import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
 import { Camera } from 'lucide-react';
-import { submitDishcoveryForm } from '@/app/actions/submitDishcoveryForm';
+import { submitDishcoveryForm } from '@//actions/submitDishcoveryForm';
 import useRecipeStore from '@/lib/recipeStore';
 
 const DishcoveryForm = () => {
