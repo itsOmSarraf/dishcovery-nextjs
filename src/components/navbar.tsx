@@ -18,7 +18,7 @@ import { SignOut } from "./auth/signout"
 
 export default async function NavBar() {
     const session = await auth();
-
+    console.log(session?.user?.image)
     return (
         <div className="flex justify-between items-center px-2">
             <Link href='/'>
@@ -28,7 +28,7 @@ export default async function NavBar() {
                 </div>
             </Link>
 
-            {!session ? (
+            {!session?.user?.image ? (
                 <SignIn />
             ) : (
                 <Menubar className="border-0">
