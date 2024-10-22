@@ -63,21 +63,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    // <ClerkProvider>
     <html lang="en">
       <body className={`bg-primary ${inter.className}`}>
-        <header>
-          {/* <SignedOut>
-              <SignInButton />
-            </SignedOut>
-            <SignedIn>
-              <UserButton />
-            </SignedIn> */}
-          <NavBar />
-        </header>
+        <NavBar />
         {children}
       </body>
     </html>
-    // {/* </ClerkProvider > */ }
   );
 }
