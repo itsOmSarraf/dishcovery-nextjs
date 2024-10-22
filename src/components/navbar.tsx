@@ -27,7 +27,7 @@ export default async function NavBar() {
                 </div>
             </Link>
 
-            {!session?.user ? (
+            {!session?.user?.image ? (
                 <SignIn />
             ) : (
                 <Menubar className="border-0">
@@ -45,7 +45,7 @@ export default async function NavBar() {
                                 </Avatar>
                             </div>
                         </MenubarTrigger>
-                        <MenubarContent className="min-w-[200px]">
+                        <MenubarContent className="min-w-[200px] mr-8 -mt-2">
                             <Link href="/me">
                                 <MenubarItem className="cursor-pointer">
                                     Profile
