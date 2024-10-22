@@ -2,7 +2,7 @@ import Image from "next/image"
 import Logo from "@/public/icons/icon.png"
 import { APP_NAME } from '@/lib/constants'
 import Link from "next/link"
-import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
 import { auth } from "@/auth"
 import SignIn from "./auth/signin"
 import {
@@ -14,7 +14,6 @@ import {
     MenubarShortcut,
     MenubarTrigger,
 } from "@/components/ui/menubar"
-import { useRouter } from 'next/navigation'
 import { SignOut } from "./auth/signout"
 
 export default async function NavBar() {
@@ -38,11 +37,10 @@ export default async function NavBar() {
                             <div className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
                                 <Avatar>
                                     <AvatarImage
-                                        className="rounded-full h-10 w-10 object-cover"
                                         src={session?.user?.image!}
                                         alt={session?.user?.name!}
                                     />
-                                    <AvatarFallback className="rounded-full h-10 w-10">
+                                    <AvatarFallback >
                                         {session?.user?.name![0]}
                                     </AvatarFallback>
                                 </Avatar>
