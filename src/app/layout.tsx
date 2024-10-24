@@ -19,7 +19,6 @@ export const metadata: Metadata = {
   description: APP_DESCRIPTION,
   manifest: "/manifest.json",
 
-  // Icons configuration
   icons: {
     icon: [
       { url: '/icons/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
@@ -31,33 +30,17 @@ export const metadata: Metadata = {
     ],
   },
 
-  // PWA configuration
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
     title: APP_DEFAULT_TITLE,
-    startupImage: [
-      {
-        url: '/icons/apple-splash-2048-2732.jpg',
-        media: '(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2)',
-      },
-      {
-        url: '/icons/apple-splash-1668-2388.jpg',
-        media: '(device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2)',
-      },
-      {
-        url: '/icons/apple-splash-1290-2796.jpg',
-        media: '(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)',
-      },
-    ],
+    // Remove startupImage as it's not a standard property in the Metadata type
   },
 
-  // Mobile configuration
   formatDetection: {
     telephone: false,
   },
 
-  // Open Graph configuration
   openGraph: {
     type: "website",
     siteName: APP_NAME,
@@ -67,17 +50,9 @@ export const metadata: Metadata = {
     },
     description: APP_DESCRIPTION,
     url: 'https://dishcovery.vercel.app',
-    images: [
-      {
-        url: '/opengraph-image.png',
-        width: 1200,
-        height: 630,
-        alt: 'Dishcovery - Snap. Discover. Cook.',
-      }
-    ],
+    // Remove images array as we're using the opengraph-image.tsx file
   },
 
-  // Twitter configuration
   twitter: {
     card: 'summary_large_image',
     title: {
@@ -85,11 +60,10 @@ export const metadata: Metadata = {
       template: APP_TITLE_TEMPLATE,
     },
     description: APP_DESCRIPTION,
-    images: ['/opengraph-image.png'],
-    creator: '@yourtwitterhandle', // Optional: Add your Twitter handle
+    // Remove images array as we're using the twitter-image.tsx file
+    creator: '@yourtwitterhandle',
   },
 
-  // Additional metadata
   keywords: [
     'recipe discovery',
     'AI recipes',
@@ -109,7 +83,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#4CAF50", // Changed to match your brand color
+  themeColor: "#4CAF50",
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
