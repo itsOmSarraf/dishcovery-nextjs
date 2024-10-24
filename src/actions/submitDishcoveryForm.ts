@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { v4 as uuidv4 } from 'uuid';
 import { Recipe } from '@/lib/types';
-import { db } from '@/lib/db';
+import { db } from '@/lib/db/index';
 import { recipeTable } from '@/lib/db/schema';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
