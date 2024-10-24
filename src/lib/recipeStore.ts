@@ -1,26 +1,17 @@
+// lib/recipeStore.ts
 import { create } from 'zustand';
-
-interface Recipe {
-	// Define your recipe structure here
-	dishName: string;
-	ingredients: string[];
-	instructions: string[];
-	nutritionalInfo: {
-		calories: number;
-		protein: string;
-		carbs: string;
-		fat: string;
-	};
-}
+import { Recipe } from './types';
 
 interface RecipeStore {
 	recipe: Recipe | null;
 	setRecipe: (recipe: Recipe) => void;
+	clearRecipe: () => void;
 }
 
 const useRecipeStore = create<RecipeStore>((set) => ({
 	recipe: null,
-	setRecipe: (recipe) => set({ recipe })
+	setRecipe: (recipe) => set({ recipe }),
+	clearRecipe: () => set({ recipe: null })
 }));
 
 export default useRecipeStore;
