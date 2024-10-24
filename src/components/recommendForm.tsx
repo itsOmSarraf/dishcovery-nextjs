@@ -44,7 +44,7 @@ const DishcoveryForm = () => {
 
   React.useEffect(() => {
     if (state.success && state.recipe) {
-      router.push(`/recipe/${state.recipe.url}`);
+      router.push(`/dish/${state.recipe.url}`);
     }
     setIsSubmitting(false);
   }, [state, router]);

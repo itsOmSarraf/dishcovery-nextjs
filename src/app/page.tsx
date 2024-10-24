@@ -8,8 +8,8 @@ export default function Home() {
   return (
     <div className="flex items-center justify-center min-h-screen">
       <div className="flex flex-col gap-4">
-        <Button onClick={() => router.push('/recommend')} variant="secondary"><CameraIcon />DishCover</Button>
-        <Button onClick={() => router.push('/gallery')} variant={'secondary'} ><GalleryVerticalEnd /> DishGallery</Button>
+        <Button onClick={() => router.push('/dishcover')} variant="secondary"><CameraIcon />DishCover</Button>
+        <Button onClick={() => router.push('/dishgallery')} variant={'secondary'} ><GalleryVerticalEnd /> DishGallery</Button>
       </div>
     </div>
   );
