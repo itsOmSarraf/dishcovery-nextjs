@@ -68,10 +68,10 @@ export default function DishGallery() {
                 transition={{ duration: 0.5 }}
             >
                 <h1 className="text-4xl font-bold text-gray-900 mb-2">
-                    Dishcovery Gallery
+                    DishGallery
                 </h1>
                 <p className="text-gray-600">
-                    Explore our collection of amazing recipes
+                    Explore our collection of amazing dishes
                 </p>
             </motion.div>
 

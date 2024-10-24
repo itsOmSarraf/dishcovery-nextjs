@@ -8,7 +8,7 @@ const inter = Inter({ subsets: ["latin"] });
 const APP_NAME = "Dishcovery";
 const APP_DEFAULT_TITLE = "Dishcovery";
 const APP_TITLE_TEMPLATE = "Dishcovery";
-const APP_DESCRIPTION = "Aaj kya banau";
+const APP_DESCRIPTION = "Snap. Discover. Cook.";
 
 export const metadata: Metadata = {
   applicationName: APP_NAME,
