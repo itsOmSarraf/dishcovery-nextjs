@@ -27,22 +27,8 @@ import { Input } from '@/components/ui/input';
 import { Camera, Loader2 } from 'lucide-react';
 import { submitDishcoveryForm } from '@/actions/submitDishcoveryForm';
 import useRecipeStore from '@/lib/recipeStore';
-import { Recipe } from '@/lib/types';
+import { FormState, Recipe } from '@/lib/types';
 
-interface FormState {
-  success: boolean;
-  error: string | null;
-  recipe: Recipe | null;
-}
-
-interface FormData {
-  photoPreview: string | null;
-  isVegetarian: boolean;
-  servings: number;
-  mealTime: string;
-  cuisineType: string;
-  dietaryRestrictions: string;
-}
 
 const DishcoveryForm = () => {
   const { setRecipe } = useRecipeStore();
@@ -63,6 +49,7 @@ const DishcoveryForm = () => {
   React.useEffect(() => {
     if (state.success && state.recipe) {
       setRecipe(state.recipe);
+
       router.push(`/recipe/${state.recipe.url}`);
     }
     setIsSubmitting(false);

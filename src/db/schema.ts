@@ -1,4 +1,12 @@
-import { pgTable, text, integer, jsonb, boolean } from 'drizzle-orm/pg-core';
+// lib/schema.ts
+import {
+	pgTable,
+	text,
+	integer,
+	jsonb,
+	boolean,
+	timestamp
+} from 'drizzle-orm/pg-core';
 
 export const recipeTable = pgTable('recipes', {
 	// Primary key - unique URL for the recipe
@@ -14,13 +22,16 @@ export const recipeTable = pgTable('recipes', {
 		carbs: string;
 		fat: string;
 	}>(),
-	// Optional: Additional fields that could be useful
+	// Recipe metadata
 	cuisineType: text('cuisine_type'),
 	servings: integer('servings'),
 	isVegetarian: boolean('is_vegetarian').notNull().default(false),
 	dietaryRestrictions: text('dietary_restrictions'),
 	totalTime: integer('total_time'), // cooking time in minutes
-	user: text()
+	user: text('user_id').notNull(),
+	createdAt: timestamp('created_at').defaultNow(),
+	imageUrl: text('image_url'),
+	mealTime: text('meal_time')
 });
 
 // Type inference for the recipe table

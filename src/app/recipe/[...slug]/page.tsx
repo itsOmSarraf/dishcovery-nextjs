@@ -71,7 +71,7 @@ export default function RecipePage({ params }: { params: { slug: string } }) {
                         <Button variant="outline" onClick={() => router.push('/')}>
                             Back to Camera
                         </Button>
-                        <Button>Add to CookBook <FileHeart /></Button>
+                        {/* <Button>Add to CookBook <FileHeart /></Button> */}
                     </div>
                 </CardContent>
             </Card>

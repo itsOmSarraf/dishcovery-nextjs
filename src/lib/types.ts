@@ -18,3 +18,18 @@ export interface Recipe {
 		fat: string;
 	};
 }
+
+export interface FormState {
+	success: boolean;
+	error: string | null;
+	recipe: Recipe | null;
+}
+
+export interface FormData {
+	photoPreview: string | null;
+	isVegetarian: boolean;
+	servings: number;
+	mealTime: string;
+	cuisineType: string;
+	dietaryRestrictions: string;
+}
