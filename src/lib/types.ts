@@ -6,3 +6,15 @@ export interface GeminiPrompts {
 	dietaryRestrictions: string;
 	photoBuffer: string;
 }
+export interface Recipe {
+	dishName: string;
+	url: string;
+	ingredients: string[];
+	instructions: string[];
+	nutritionalInfo: {
+		calories: number;
+		protein: string;
+		carbs: string;
+		fat: string;
+	};
+}

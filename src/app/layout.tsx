@@ -1,13 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-// import {
-//   ClerkProvider,
-//   SignInButton,
-//   SignedIn,
-//   SignedOut,
-//   UserButton
-// } from '@clerk/nextjs';
 import NavBar from "@/components/navbar";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -19,6 +12,9 @@ const APP_DESCRIPTION = "Aaj kya banau";
 
 export const metadata: Metadata = {
   applicationName: APP_NAME,
+  icons: {
+    icon: '/favicon.ico',
+  },
   title: {
     default: APP_DEFAULT_TITLE,
     template: APP_TITLE_TEMPLATE,

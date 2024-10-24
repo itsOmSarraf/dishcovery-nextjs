@@ -2,28 +2,44 @@
 
 import { revalidatePath } from 'next/cache';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { v4 as uuidv4 } from 'uuid';
+import { Recipe } from '@/lib/types';
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
-export async function submitDishcoveryForm(prevState, formData) {
+function slugify(text: string): string {
+	return text
+		.toLowerCase()
+		.replace(/[^\w\s-]/g, '')
+		.replace(/\s+/g, '-')
+		.replace(/-+/g, '-')
+		.trim();
+}
+
+interface FormState {
+	success: boolean;
+	error: string | null;
+	recipe: Recipe | null;
+}
+
+export async function submitDishcoveryForm(
+	prevState: FormState,
+	formData: FormData
+): Promise<FormState> {
 	try {
-		// Extract form data
-		const photoPreview = formData.get('photoPreview');
+		const photoPreview = formData.get('photoPreview') as string;
 		const isVegetarian = formData.get('isVegetarian') === 'on';
-		const servings = formData.get('servings');
-		const mealTime = formData.get('mealTime');
-		const cuisineType = formData.get('cuisineType');
-		const dietaryRestrictions = formData.get('dietaryRestrictions');
+		const servings = formData.get('servings') as string;
+		const mealTime = formData.get('mealTime') as string;
+		const cuisineType = formData.get('cuisineType') as string;
+		const dietaryRestrictions = formData.get('dietaryRestrictions') as string;
 
-		// Validate required fields
 		if (!photoPreview) {
 			throw new Error('No image provided');
 		}
 
-		// The photoPreview is already a base64 string, so we can use it directly
-		const imageBase64 = photoPreview.split(',')[1]; // Remove the data:image/jpeg;base64, part
+		const imageBase64 = photoPreview.split(',')[1];
 
-		// Prepare the prompt for Gemini
 		const prompt = `
       Analyze this image of a dish and provide a recipe based on the following criteria:
       - Dietary restrictions: ${dietaryRestrictions}
@@ -46,7 +62,6 @@ export async function submitDishcoveryForm(prevState, formData) {
       }
     `;
 
-		// Call Gemini API
 		const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 		const result = await model.generateContent([
 			{
@@ -61,10 +76,16 @@ export async function submitDishcoveryForm(prevState, formData) {
 		const response = await result.response;
 		const recipeText = response.text();
 
-		// Parse the JSON response
-		let recipe;
+		let recipe: Recipe;
 		try {
-			recipe = JSON.parse(recipeText);
+			const parsedRecipe = JSON.parse(recipeText);
+			const uuid = `${uuidv4().substring(0, 6)}`;
+			const slug = slugify(parsedRecipe.dishName);
+
+			recipe = {
+				...parsedRecipe,
+				url: `${slug}-${uuid}`
+			};
 		} catch (error) {
 			console.error('Failed to parse Gemini response:', error);
 			return {
@@ -74,15 +95,14 @@ export async function submitDishcoveryForm(prevState, formData) {
 			};
 		}
 
-		console.log('Generated recipe:', recipe);
-
 		revalidatePath('/');
-		return { success: true, recipe };
+		return { success: true, error: null, recipe };
 	} catch (error) {
 		console.error('Error in submitDishcoveryForm:', error);
 		return {
 			success: false,
-			error: error.message || 'Failed to generate recipe. Please try again.',
+			error:
+				error instanceof Error ? error.message : 'Failed to generate recipe',
 			recipe: null
 		};
 	}

@@ -1,24 +1,12 @@
 import { create } from 'zustand';
+import { Recipe } from './types';
 
-interface Recipe {
-	// Define your recipe structure here
-	dishName: string;
-	ingredients: string[];
-	instructions: string[];
-	nutritionalInfo: {
-		calories: number;
-		protein: string;
-		carbs: string;
-		fat: string;
-	};
-}
-
-interface RecipeStore {
+interface RecipeState {
 	recipe: Recipe | null;
 	setRecipe: (recipe: Recipe) => void;
 }
 
-const useRecipeStore = create<RecipeStore>((set) => ({
+const useRecipeStore = create<RecipeState>((set) => ({
 	recipe: null,
 	setRecipe: (recipe) => set({ recipe })
 }));
