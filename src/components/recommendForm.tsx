@@ -26,12 +26,8 @@ import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
 import { Camera, Loader2 } from 'lucide-react';
 import { submitDishcoveryForm } from '@/actions/submitDishcoveryForm';
-import useRecipeStore from '@/lib/recipeStore';
-import { FormState, Recipe } from '@/lib/types';
-
 
 const DishcoveryForm = () => {
-  const { setRecipe } = useRecipeStore();
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
@@ -43,17 +39,15 @@ const DishcoveryForm = () => {
   const [dietaryRestrictions, setDietaryRestrictions] = useState('none');
   const webcamRef = useRef<Webcam>(null);
 
-  const initialState: FormState = { success: false, error: null, recipe: null };
+  const initialState = { success: false, error: null, recipe: null };
   const [state, formAction] = useFormState(submitDishcoveryForm, initialState);
 
   React.useEffect(() => {
     if (state.success && state.recipe) {
-      setRecipe(state.recipe);
-
       router.push(`/recipe/${state.recipe.url}`);
     }
     setIsSubmitting(false);
-  }, [state, setRecipe, router]);
+  }, [state, router]);
 
   const capture = useCallback(() => {
     const imageSrc = webcamRef.current?.getScreenshot();

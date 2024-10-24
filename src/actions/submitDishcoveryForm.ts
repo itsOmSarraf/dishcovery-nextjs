@@ -4,6 +4,8 @@ import { revalidatePath } from 'next/cache';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { v4 as uuidv4 } from 'uuid';
 import { Recipe } from '@/lib/types';
+import { db } from '@/lib/db';
+import { recipeTable } from '@/lib/db/schema';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
@@ -33,12 +35,16 @@ export async function submitDishcoveryForm(
 		const mealTime = formData.get('mealTime') as string;
 		const cuisineType = formData.get('cuisineType') as string;
 		const dietaryRestrictions = formData.get('dietaryRestrictions') as string;
+		const userId = 'default-user'; // Replace with actual user ID from auth
 
 		if (!photoPreview) {
 			throw new Error('No image provided');
 		}
 
 		const imageBase64 = photoPreview.split(',')[1];
+		// Here you would typically upload the image to cloud storage
+		// and get back a URL. For now, we'll skip this step.
+		const imageUrl = ''; // Replace with actual image upload logic
 
 		const prompt = `
       Analyze this image of a dish and provide a recipe based on the following criteria:
@@ -76,16 +82,35 @@ export async function submitDishcoveryForm(
 		const response = await result.response;
 		const recipeText = response.text();
 
-		let recipe: Recipe;
 		try {
 			const parsedRecipe = JSON.parse(recipeText);
 			const uuid = `${uuidv4().substring(0, 6)}`;
 			const slug = slugify(parsedRecipe.dishName);
+			const url = `${slug}-${uuid}`;
 
-			recipe = {
+			const recipe = {
 				...parsedRecipe,
-				url: `${slug}-${uuid}`
+				url
 			};
+
+			// Insert recipe into database
+			await db.insert(recipeTable).values({
+				url,
+				dishName: parsedRecipe.dishName,
+				ingredients: parsedRecipe.ingredients,
+				instructions: parsedRecipe.instructions,
+				nutritionalInfo: parsedRecipe.nutritionalInfo,
+				cuisineType,
+				servings: parseInt(servings),
+				isVegetarian,
+				dietaryRestrictions,
+				mealTime,
+				user: userId,
+				imageUrl
+			});
+
+			revalidatePath('/');
+			return { success: true, error: null, recipe };
 		} catch (error) {
 			console.error('Failed to parse Gemini response:', error);
 			return {
@@ -94,9 +119,6 @@ export async function submitDishcoveryForm(
 				recipe: null
 			};
 		}
-
-		revalidatePath('/');
-		return { success: true, error: null, recipe };
 	} catch (error) {
 		console.error('Error in submitDishcoveryForm:', error);
 		return {

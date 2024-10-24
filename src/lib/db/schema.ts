@@ -34,6 +34,5 @@ export const recipeTable = pgTable('recipes', {
 	mealTime: text('meal_time')
 });
 
-// Type inference for the recipe table
 export type DrizzleRecipe = typeof recipeTable.$inferSelect;
 export type NewDrizzleRecipe = typeof recipeTable.$inferInsert;
