@@ -19,7 +19,7 @@ import { SignOut } from "./auth/signout"
 export default async function NavBar() {
     const session = await auth()
     return (
-        <div className="flex justify-between items-center px-2">
+        <div className="fixed left-0 right-0 top-0 flex justify-between items-center px-2">
             <Link href='/'>
                 <div className="flex items-center p-2">
                     <Image src={Logo} alt={APP_NAME} className='size-12' />
