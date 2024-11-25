@@ -68,7 +68,7 @@ export async function submitDishcoveryForm(
       }
     `;
 
-		const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+		const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' });
 		const result = await model.generateContent([
 			{
 				inlineData: {

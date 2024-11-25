@@ -70,7 +70,7 @@ export default function ClientGallery({ recipes }: ClientGalleryProps) {
                     <p className="text-xl font-medium mb-2">No recipes found</p>
                     <p className="text-gray-400 mb-4">Let&apos;s create your first amazing recipe!</p>
                     <Link
-                        href="/"
+                        href="/dishcover"
                         className="inline-flex items-center px-4 py-2 rounded-full bg-blue-500 text-white hover:bg-blue-600 transition-colors"
                     >
                         Create Recipe
