@@ -1,4 +1,4 @@
-# **Dishcovery: AI-Powered Recipe Suggestion App** 🍽️
+ y# **Dishcovery: AI-Powered Recipe Suggestion App** 🍽️
 
 Dishcovery is an innovative recipe suggestion platform where users can upload images of ingredients (fruits, vegetables, etc.) along with dietary preferences to generate personalized recipes. Powered by cutting-edge AI and robust backend systems, Dishcovery creates detailed recipes and saves them for users to browse, share, and enjoy.
 
@@ -30,7 +30,7 @@ Dishcovery is an innovative recipe suggestion platform where users can upload im
 
 - **Database**: [PostgreSQL](https://www.postgresql.org/) with [Drizzle ORM](https://orm.drizzle.team/)
 - **Caching**: [Redis](https://redis.io/) via [Upstash](https://upstash.com/)
-- **AI Vision Models**: [Llama Vision from meta-llama/Llama-Vision-Free](https://example.com/) (by Together.ai)
+- **AI Vision Models**: [Llama Vision from meta-llama/Llama-Vision-Free](https://api.together.xyz/) (by Together.ai)
 - **Authentication**: [NextAuth.js](https://next-auth.js.org/)
 
 ### **Package Manager**
