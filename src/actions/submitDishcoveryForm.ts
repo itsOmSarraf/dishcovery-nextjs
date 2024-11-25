@@ -1,13 +1,13 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import Together from 'together-ai';
 import { v4 as uuidv4 } from 'uuid';
 import { Recipe } from '@/lib/types';
 import { db } from '@/lib/db/index';
 import { recipeTable } from '@/lib/db/schema';
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+const together = new Together({ apiKey: process.env.TOGETHER_API_KEY });
 
 function slugify(text: string): string {
 	return text
@@ -24,7 +24,7 @@ interface FormState {
 	recipe: Recipe | null;
 }
 
-// Helper function to clean and parse JSON from Gemini response
+// Helper function to clean and parse JSON from Llama response
 function cleanAndParseJSON(text: string): any {
 	// Remove any markdown code block markers
 	let cleaned = text.replace(/```json\n?/g, '').replace(/```\n?/g, '');
@@ -51,6 +51,33 @@ function cleanAndParseJSON(text: string): any {
 	}
 }
 
+async function uploadToImgur(base64Image: string) {
+	const clientId = process.env.IMGUR_CLIENT_ID;
+
+	// Remove the data:image/jpeg;base64 prefix if present
+	const imageData = base64Image.split(',')[1] || base64Image;
+
+	const response = await fetch('https://api.imgur.com/3/image', {
+		method: 'POST',
+		headers: {
+			Authorization: `Client-ID ${clientId}`,
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify({
+			image: imageData,
+			type: 'base64'
+		})
+	});
+
+	const data = await response.json();
+
+	if (!response.ok) {
+		throw new Error(data.data.error || 'Failed to upload image to Imgur');
+	}
+
+	return data.data.link;
+}
+
 export async function submitDishcoveryForm(
 	prevState: FormState,
 	formData: FormData
@@ -68,9 +95,9 @@ export async function submitDishcoveryForm(
 			throw new Error('No image provided');
 		}
 
-		const imageBase64 = photoPreview.split(',')[1];
-		const imageUrl = ''; // Replace with actual image upload logic
-
+		// Upload image to Imgur first
+		const imgurUrl = await uploadToImgur(photoPreview);
+		console.log(imgurUrl);
 		const prompt = `
         Analyze this image of a dish and provide a recipe based on the following criteria:
         - Dietary restrictions: ${dietaryRestrictions}
@@ -91,20 +118,30 @@ export async function submitDishcoveryForm(
                 "fat": "00g"
             }
         }`;
-
-		const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' });
-		const result = await model.generateContent([
-			{
-				inlineData: {
-					mimeType: 'image/jpeg',
-					data: imageBase64
+		// @ts-ignore
+		const response = await together.chat.completions.create({
+			messages: [
+				{
+					role: 'user',
+					content: [
+						{ type: 'text', text: prompt },
+						{
+							type: 'image_url',
+							image_url: { url: imgurUrl }
+						}
+					]
 				}
-			},
-			{ text: prompt }
-		]);
+			],
+			model: 'meta-llama/Llama-Vision-Free',
+			max_tokens: null,
+			temperature: 0.7,
+			top_p: 0.7,
+			top_k: 50,
+			repetition_penalty: 1,
+			stop: ['<|eot_id|>', '<|eom_id|>']
+		});
 
-		const response = await result.response;
-		const recipeText = response.text();
+		const recipeText = response.choices[0]?.message?.content || '';
 
 		try {
 			const parsedRecipe = cleanAndParseJSON(recipeText);
@@ -141,7 +178,7 @@ export async function submitDishcoveryForm(
 				dietaryRestrictions,
 				mealTime,
 				user: userId,
-				imageUrl
+				imageUrl: imgurUrl
 			});
 
 			revalidatePath('/');
