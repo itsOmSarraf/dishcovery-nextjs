@@ -4,6 +4,10 @@ const withPWA = withPWAInit({
 	dest: 'public'
 });
 
-// /** @type {import('next').NextConfig} */
+const nextConfig = {
+	images: {
+		domains: ['placeholder.com']
+	}
+};
 
-export default withPWA();
+export default withPWA(nextConfig);

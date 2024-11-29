@@ -1,5 +1,5 @@
 import { fetchRecipes } from '@/actions/fetchDishes';
-import ClientGallery from './DishGallery';
+import ClientGallery from '../../components/DishGallery';
 import { Suspense } from 'react';
 
 export const metadata = {

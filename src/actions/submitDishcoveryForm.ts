@@ -106,6 +106,7 @@ export async function submitDishcoveryForm(
         - Meal time: ${mealTime}
         - Number of servings: ${servings}
 
+		Give a good dish with detailed instructions
         Provide ONLY a JSON response with this exact structure. Do not include any additional text, explanations, or markdown:
         {
             "dishName": "Name of the dish",
