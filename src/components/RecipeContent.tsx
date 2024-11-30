@@ -12,15 +12,15 @@ export function RecipeContent({ recipe, onCopyUrl }: any) {
                 <CardContent className="space-y-8 p-6">
                     <div className="grid md:grid-cols-3 gap-8">
                         <div className="md:col-span-1">
-                            <div className="sticky top-8 space-y-4">
+                            <div className="top-8 space-y-4">
                                 <div className="rounded-lg overflow-hidden shadow-lg">
-                                    {/* <Image
+                                    <Image
                                         src="https://placeholder.com/100x100.png"
                                         alt={recipe.dishName}
                                         className="w-full h-96 object-cover"
                                         width={10}
                                         height={10}
-                                    /> */}
+                                    />
                                 </div>
                                 {(recipe.dietaryRestrictions !== 'none' || recipe.mealTime) && (
                                     <div className="bg-white p-4 rounded-lg shadow-sm">
