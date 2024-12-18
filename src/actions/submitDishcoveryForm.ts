@@ -163,7 +163,8 @@ export async function submitDishcoveryForm(
 
 			const recipe = {
 				...parsedRecipe,
-				url
+				url,
+				user: userId // Added missing field 'user'
 			};
 
 			// Insert recipe into database
@@ -178,7 +179,7 @@ export async function submitDishcoveryForm(
 				isVegetarian,
 				dietaryRestrictions,
 				mealTime,
-				user: userId,
+				userId: userId, // Corrected field name to match schema
 				imageUrl: imgurUrl
 			});
 

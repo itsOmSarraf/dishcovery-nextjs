@@ -17,6 +17,7 @@ export interface Recipe {
 		carbs: string;
 		fat: string;
 	};
+	userId: string;
 }
 
 export interface FormState {
