@@ -6,6 +6,7 @@ export interface GeminiPrompts {
 	dietaryRestrictions: string;
 	photoBuffer: string;
 }
+
 export interface Recipe {
 	dishName: string;
 	url: string;
