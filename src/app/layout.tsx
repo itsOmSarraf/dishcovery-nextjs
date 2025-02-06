@@ -18,7 +18,14 @@ export const metadata: Metadata = {
   },
   description: APP_DESCRIPTION,
   manifest: "/manifest.json",
-
+  metadataBase: new URL('https://acme.com'),
+  alternates: {
+    canonical: '/',
+    languages: {
+      'en-US': '/en-US',
+      'de-DE': '/de-DE',
+    },
+  },
   icons: {
     icon: [
       { url: '/icons/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
@@ -42,6 +49,7 @@ export const metadata: Metadata = {
   },
 
   openGraph: {
+    images: '/icons/og-image.png',
     type: "website",
     siteName: APP_NAME,
     title: {
